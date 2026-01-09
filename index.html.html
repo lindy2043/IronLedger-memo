@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IronLedger.ai Investment Memo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            background: #ffffff;
+            color: #1a1a1a;
+            overflow: hidden;
+        }
+
+        .presentation {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+
+        .slide {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            padding: 60px 80px;
+            display: flex;
+            flex-direction: column;
+            background: #ffffff;
+        }
+
+        .slide.active {
+            opacity: 1;
+            z-index: 10;
+        }
+
+        /* Title Slide Styles */
+        .title-slide {
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 80px;
+        }
+
+        .logo-container {
+            margin-bottom: 50px;
+        }
+
+        .logo-container img {
+            max-width: 500px;
+            width: 80%;
+            height: auto;
+        }
+
+        .main-title {
+            font-size: 48px;
+            font-weight: 700;
+            color: #000000;
+            margin-bottom: 20px;
+        }
+
+        .subtitle {
+            font-size: 28px;
+            color: #666666;
+            font-weight: 400;
+            margin-bottom: 100px;
+        }
+
+        .author {
+            font-size: 18px;
+            color: #333333;
+            font-weight: 500;
+        }
+
+        /* Content Slide Styles */
+        .slide-header {
+            margin-bottom: 35px;
+        }
+
+        .slide-number {
+            font-size: 14px;
+            color: #999999;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .slide-title {
+            font-size: 28px;
+            font-weight: 700;
+            line-height: 1.3;
+            color: #000000;
+            margin-bottom: 8px;
+        }
+
+        .slide-content {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 20px;
+        }
+
+        .slide-content::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .slide-content::-webkit-scrollbar-track {
+            background: #f0f0f0;
+            border-radius: 3px;
+        }
+
+        .slide-content::-webkit-scrollbar-thumb {
+            background: #4A90E2;
+            border-radius: 3px;
+        }
+
+        h3 {
+            font-size: 20px;
+            color: #4A90E2;
+            margin-top: 25px;
+            margin-bottom: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        h3:first-child {
+            margin-top: 0;
+        }
+
+        h4 {
+            font-size: 16px;
+            color: #2c5aa0;
+            margin-top: 15px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        ul {
+            list-style: none;
+            margin-left: 0;
+        }
+
+        li {
+            margin-bottom: 10px;
+            padding-left: 25px;
+            position: relative;
+            line-height: 1.6;
+            font-size: 15px;
+            color: #333333;
+        }
+
+        li:before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: #4A90E2;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .metric-box {
+            background: #f8f9fa;
+            border-left: 4px solid #4A90E2;
+            padding: 15px 20px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+
+        .metric-box strong {
+            color: #2c5aa0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            background: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th {
+            background: #f5f5f5;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #2c5aa0;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #4A90E2;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 14px;
+            color: #333333;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover {
+            background: #f9f9f9;
+        }
+
+        .checkmark {
+            color: #4caf50;
+        }
+
+        .xmark {
+            color: #f44336;
+        }
+
+        .controls {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            gap: 15px;
+            z-index: 100;
+        }
+
+        button {
+            background: #4A90E2;
+            color: #fff;
+            border: none;
+            padding: 12px 28px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 8px rgba(74, 144, 226, 0.3);
+        }
+
+        button:hover:not(:disabled) {
+            background: #357ABD;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(74, 144, 226, 0.4);
+        }
+
+        button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: #4A90E2;
+            transition: width 0.3s ease;
+            z-index: 101;
+        }
+
+        .recommendation-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #4caf50, #2e7d32);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+            box-shadow: 0 3px 10px rgba(76,175,80,0.3);
+        }
+
+        .risk-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .risk-high {
+            background: rgba(244,67,54,0.15);
+            color: #d32f2f;
+            border: 1px solid #d32f2f;
+        }
+
+        .risk-medium {
+            background: rgba(255,152,0,0.15);
+            color: #f57c00;
+            border: 1px solid #f57c00;
+        }
+
+        .risk-low {
+            background: rgba(76,175,80,0.15);
+            color: #388e3c;
+            border: 1px solid #388e3c;
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 35px;
+            margin: 20px 0;
+        }
+
+        @media (max-width: 1200px) {
+            .slide {
+                padding: 40px 50px;
+            }
+            
+            .slide-title {
+                font-size: 24px;
+            }
+            
+            .two-column {
+                grid-template-columns: 1fr;
+            }
+
+            .logo-container img {
+                max-width: 400px;
+            }
+
+            .main-title {
+                font-size: 36px;
+            }
+
+            .subtitle {
+                font-size: 22px;
+            }
+        }
+
+        strong {
+            color: #1a1a1a;
+            font-weight: 600;
+        }
+
+        .highlight {
+            background: rgba(74, 144, 226, 0.15);
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #e0e0e0, transparent);
+            margin: 25px 0;
+        }
+
+        p {
+            line-height: 1.6;
+            color: #333333;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-bar" id="progressBar"></div>
+    
+    <div class="presentation" id="presentation">
+        <!-- Title Slide -->
+        <div class="slide title-slide active" data-slide="0">
+            <div class="logo-container">
+                <img src="/mnt/user-data/uploads/opengraph.png" alt="IronLedger.ai Logo">
+            </div>
+            <h1 class="main-title">Investment Memo for IronLedger</h1>
+            <p class="subtitle">Workflow-Embedded AI for Property Accounting</p>
+            <p class="author">By Selinda Zhu, Extern.com</p>
+        </div>
+
+        <!-- Slide 1: Investment Opportunity & Market Position -->
+        <div class="slide" data-slide="1">
+            <div class="slide-header">
+                <div class="slide-number">Slide 1 of 3</div>
+                <div class="slide-title">IronLedger: Category-Creating Pre-Accounting Platform With Exceptional Early Traction</div>
+            </div>
+            <div class="slide-content">
+                <div class="two-column">
+                    <div>
+                        <h3>Investment Snapshot</h3>
+                        <div class="recommendation-badge">PROCEED TO SERIES A DILIGENCE</div>
+                        
+                        <h4>Key Metrics</h4>
+                        <ul>
+                            <li>$220K ARR with 2-person team ($110K ARR/founder, top decile)</li>
+                            <li>35,000+ multifamily units under management</li>
+                            <li>$500K pre-seed from Y Combinator (Sept 2025)</li>
+                            <li>>99% coding accuracy, 90-120 hrs saved/month per customer</li>
+                            <li>Target: $5M ARR by 2026</li>
+                        </ul>
+
+                        <h4>Company Overview</h4>
+                        <ul>
+                            <li>Founded 2025, New York, NY</li>
+                            <li>AI-powered receipt collection and expense-coding platform</li>
+                            <li>Integrates with existing credit cards and property management systems</li>
+                            <li>Starting with multifamily, expanding to AppFolio, Entrata, RealPage, Yardi</li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h3>Market Opportunity & Timing</h3>
+                        
+                        <h4>Beachhead: Property Management Software</h4>
+                        <ul>
+                            <li>$5.5B (2023) → $9.7B (2030), 8.9% CAGR</li>
+                            <li>SMB operators (1-500 units) growing at 14.3% CAGR—perfect fit</li>
+                            <li>Cloud deployment: 62.6% of market, hybrid growing at 13.9% CAGR</li>
+                        </ul>
+
+                        <h4>Platform Expansion: Operational Accounting</h4>
+                        <ul>
+                            <li>Broader TAM: $7.1B → $13.6B (10.1% CAGR)</li>
+                            <li>Adjacent verticals: Construction, healthcare admin, MRO, manufacturing, utilities</li>
+                            <li>Common DNA: High-volume, allocation-heavy workflows</li>
+                        </ul>
+
+                        <h4>Market Tailwinds</h4>
+                        <ul>
+                            <li>AI/analytics modules: 14.9% CAGR (fastest segment)</li>
+                            <li>Digital transformation off spreadsheets</li>
+                            <li>Rising compliance/audit-trail demands</li>
+                        </ul>
+
+                        <div class="metric-box">
+                            <strong>Investor POV:</strong> Market validating shift from post-hoc reconciliation to moment-of-spend intelligence
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 2: Problem, Solution & Competitive Moat -->
+        <div class="slide" data-slide="2">
+            <div class="slide-header">
+                <div class="slide-number">Slide 2 of 3</div>
+                <div class="slide-title">Uncontested Category Position: Pre-Accounting Workflow Layer Between Spend and Legacy Systems</div>
+            </div>
+            <div class="slide-content">
+                <h3>The Problem & Structural Gap</h3>
+                
+                <div class="two-column">
+                    <div>
+                        <h4>Why Property Accounting Breaks</h4>
+                        <ul>
+                            <li>Receipt chasing across distributed teams → context decay</li>
+                            <li>Books close 30+ days late</li>
+                            <li>Labor costs scale linearly with portfolio growth</li>
+                            <li>Root cause: All solutions start <strong>after</strong> spend occurs, not during</li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h4>Competitive Landscape: No One Owns This Layer</h4>
+                        <table style="font-size: 13px;">
+                            <thead>
+                                <tr>
+                                    <th>Layer</th>
+                                    <th>Players</th>
+                                    <th>Limitation</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Too Upstream</strong></td>
+                                    <td>Leasing AI</td>
+                                    <td>No spend capture or GL logic</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Too Downstream</strong></td>
+                                    <td>Traditional PMS</td>
+                                    <td>Start post-spend, month-end reconciliation</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Too Horizontal</strong></td>
+                                    <td>ERPs</td>
+                                    <td>Generic, no vertical workflow logic</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Too Shallow</strong></td>
+                                    <td>SMB PMS</td>
+                                    <td>No customer-specific learning</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="divider"></div>
+
+                <h3>Solution & Defensibility</h3>
+                
+                <h4>How IronLedger Works</h4>
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin: 15px 0;">
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; text-align: center; border: 2px solid #4A90E2;">
+                        <strong style="color: #4A90E2; display: block; margin-bottom: 8px; font-size: 16px;">1. Intercept</strong>
+                        <span style="font-size: 13px; color: #333;">Spend at moment of action (SMS, email, web, file)</span>
+                    </div>
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; text-align: center; border: 2px solid #4A90E2;">
+                        <strong style="color: #4A90E2; display: block; margin-bottom: 8px; font-size: 16px;">2. Capture</strong>
+                        <span style="font-size: 13px; color: #333;">Receipt + allocation + rationale before decay</span>
+                    </div>
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; text-align: center; border: 2px solid #4A90E2;">
+                        <strong style="color: #4A90E2; display: block; margin-bottom: 8px; font-size: 16px;">3. Auto-code</strong>
+                        <span style="font-size: 13px; color: #333;">Using customer-specific learning loops</span>
+                    </div>
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; text-align: center; border: 2px solid #4A90E2;">
+                        <strong style="color: #4A90E2; display: block; margin-bottom: 8px; font-size: 16px;">4. Explain</strong>
+                        <span style="font-size: 13px; color: #333;">"Train of thought" for auditability</span>
+                    </div>
+                </div>
+
+                <div class="two-column">
+                    <div>
+                        <h4>Technical Differentiation vs. Alternatives</h4>
+                        <ul style="font-size: 14px;">
+                            <li><strong>OCR/RPA:</strong> Starts too late, misses context → IronLedger captures before decay</li>
+                            <li><strong>Horizontal spend tools:</strong> T&E-optimized → IronLedger purpose-built for property splits</li>
+                            <li><strong>IDP/LLM extraction:</strong> Parses docs → IronLedger embeds into frontline workflow</li>
+                            <li><strong>PMS native AI:</strong> Ships slowly → IronLedger behavior-first architecture</li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h4>Core IP & Moat</h4>
+                        <ul style="font-size: 14px;">
+                            <li><strong>Behavior-embedded learning loops</strong> capture customer-specific GL patterns</li>
+                            <li>Not static rules—continuously learns and builds institutional memory</li>
+                            <li><strong>Switching costs compound:</strong> The longer used, the smarter it gets</li>
+                            <li><strong>Category creation:</strong> Incumbents need complete rebuild to compete</li>
+                        </ul>
+                        
+                        <div class="metric-box" style="margin-top: 15px;">
+                            <strong>Product Results:</strong> >99% accuracy | Real-time tracking | Sub-1-week closes (vs. 30+ days)
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: Team, Risks & Investment Recommendation -->
+        <div class="slide" data-slide="3">
+            <div class="slide-header">
+                <div class="slide-number">Slide 3 of 3</div>
+                <div class="slide-title">Rare Vertical SaaS DNA Justifies Series A Entry Despite GTM Build-Out Requirements</div>
+            </div>
+            <div class="slide-content">
+                <div class="two-column">
+                    <div>
+                        <h3>Founding Team & Execution</h3>
+                        
+                        <h4>Founder-Market Fit: Exceptional for Pre-Seed</h4>
+                        
+                        <div style="background: #f8f9fa; padding: 12px; border-radius: 6px; margin-bottom: 12px; border-left: 3px solid #4A90E2;">
+                            <strong style="color: #4A90E2;">Nick Amore, CEO</strong>
+                            <ul style="font-size: 14px; margin-top: 8px;">
+                                <li>Grew up in multifamily RE family business, invested in 500+ units</li>
+                                <li>Wharton (finance, RE, analytics)</li>
+                                <li>Bain consulting (PE, RE, construction, AI)</li>
+                                <li>Signal: Lived customer pain + vertical SaaS structuring expertise</li>
+                            </ul>
+                        </div>
+
+                        <div style="background: #f8f9fa; padding: 12px; border-radius: 6px; margin-bottom: 12px; border-left: 3px solid #4A90E2;">
+                            <strong style="color: #4A90E2;">Samuel Li, CTO</strong>
+                            <ul style="font-size: 14px; margin-top: 8px;">
+                                <li>Princeton CS (Magna Cum Laude)</li>
+                                <li>4 years at Rippling building mission-critical HR/finance workflows</li>
+                                <li>Understands system-of-record requirements, compliance, auditability</li>
+                                <li>Signal: Enterprise-grade architecture from day one</li>
+                            </ul>
+                        </div>
+
+                        <h4>Proven Execution</h4>
+                        <ul style="font-size: 14px;">
+                            <li>$220K revenue with 2 people (top-decile capital efficiency)</li>
+                            <li>35K units = can close initial customers</li>
+                            <li>>99% accuracy = technical execution validated</li>
+                            <li>YC backing = external validation</li>
+                        </ul>
+
+                        <h4>Critical Gaps Requiring Investment</h4>
+                        <ul style="font-size: 14px;">
+                            <li>VP Sales: Build repeatable enterprise GTM beyond founder-led motion</li>
+                            <li>BD Leader: Accelerate PMS partnerships (AppFolio, Entrata, RealPage, Yardi)</li>
+                            <li>Customer Success, Product Management, Compliance/Security hires</li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h3>Risk Assessment & Recommendation</h3>
+                        
+                        <h4>Key Risks & Mitigation</h4>
+                        <table style="font-size: 13px;">
+                            <thead>
+                                <tr>
+                                    <th>Risk</th>
+                                    <th style="width: 70px;">Severity</th>
+                                    <th>Mitigation</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Founder-led GTM doesn't scale</td>
+                                    <td><span class="risk-badge risk-high">HIGH</span></td>
+                                    <td>Hire seasoned VP Sales, build repeatable motion</td>
+                                </tr>
+                                <tr>
+                                    <td>PMS incumbents build native AI</td>
+                                    <td><span class="risk-badge risk-medium">MED</span></td>
+                                    <td>Behavior embedding + learning loops create switching costs</td>
+                                </tr>
+                                <tr>
+                                    <td>Integration dependencies slow growth</td>
+                                    <td><span class="risk-badge risk-medium">MED</span></td>
+                                    <td>AppFolio/Entrata compatibility proven; partnership BD hire</td>
+                                </tr>
+                                <tr>
+                                    <td>Compliance/audit requirements</td>
+                                    <td><span class="risk-badge risk-medium">MED</span></td>
+                                    <td>CTO has system-of-record experience; allocate for compliance</td>
+                                </tr>
+                                <tr>
+                                    <td>Undermonetization</td>
+                                    <td><span class="risk-badge risk-low">LOW</span></td>
+                                    <td>$6.30/unit leaves pricing headroom; upsell as platform expands</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div class="divider"></div>
+
+                        <h4>Investment Thesis Summary</h4>
+                        <ul style="font-size: 14px;">
+                            <li><strong>Category creation:</strong> White space between spend and accounting—no incumbent positioned to compete</li>
+                            <li><strong>Defensible moat:</strong> Customer-specific learning loops that generic AI cannot replicate</li>
+                            <li><strong>Platform path:</strong> Multifamily validates across construction, healthcare, MRO, manufacturing, utilities</li>
+                            <li><strong>Execution velocity:</strong> Top-decile metrics prove founder-market fit</li>
+                        </ul>
+
+                        <div class="divider"></div>
+
+                        <div class="recommendation-badge">PROCEED TO SERIES A DILIGENCE</div>
+
+                        <h4>Diligence Focus Areas</h4>
+                        <ul style="font-size: 13px;">
+                            <li>Validate customer acquisition repeatability beyond founder network</li>
+                            <li>Pressure-test defensibility with PMS incumbents and AI experts</li>
+                            <li>Model unit economics at scale (CAC, LTV, gross margin)</li>
+                            <li>Assess hiring plan and ability to attract enterprise GTM talent</li>
+                            <li>Technical DD on AI architecture and data strategy</li>
+                        </ul>
+
+                        <h4>Proposed Investment Structure</h4>
+                        <ul style="font-size: 13px;">
+                            <li>Series A to fund: GTM scale, PMS partnerships, team build-out</li>
+                            <li>Board seat for GTM hiring and competitive positioning guidance</li>
+                            <li>Milestones: Validate $5M ARR path, prove repeatable sales motion</li>
+                        </ul>
+
+                        <div class="metric-box" style="margin-top: 15px;">
+                            <strong>Investor POV:</strong> Rare opportunity to enter category-creating company at inflection point—after technical/customer validation but before market recognizes the gap
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+        <button id="nextBtn" onclick="changeSlide(1)">Next →</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const totalSlides = 4;
+
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide');
+            
+            if (n >= totalSlides) {
+                currentSlide = totalSlides - 1;
+            }
+            if (n < 0) {
+                currentSlide = 0;
+            }
+            
+            slides.forEach(slide => {
+                slide.classList.remove('active');
+            });
+            
+            slides[currentSlide].classList.add('active');
+            
+            // Update progress bar
+            const progress = ((currentSlide + 1) / totalSlides) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+            
+            // Update button states
+            document.getElementById('prevBtn').disabled = currentSlide === 0;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides - 1;
+            
+            // Reset scroll position for content slides
+            if (currentSlide > 0) {
+                const contentDiv = slides[currentSlide].querySelector('.slide-content');
+                if (contentDiv) {
+                    contentDiv.scrollTop = 0;
+                }
+            }
+        }
+
+        function changeSlide(n) {
+            currentSlide += n;
+            showSlide(currentSlide);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowRight') {
+                event.preventDefault();
+                if (currentSlide < totalSlides - 1) {
+                    changeSlide(1);
+                }
+            } else if (event.key === 'ArrowLeft') {
+                event.preventDefault();
+                if (currentSlide > 0) {
+                    changeSlide(-1);
+                }
+            }
+        });
+
+        // Initialize
+        showSlide(currentSlide);
+    </script>
+</body>
+</html>
